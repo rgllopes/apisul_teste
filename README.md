@@ -26,4 +26,6 @@ Faça a leitura do arquivo input.json para ter acesso às entradas.
 ### API desenvolvida em 
 ** java 11 **
 
+** projeto encontra-se na branch develop conforme gitflow recommendations **
+ 
 Data de entrega 29 de novembro de 2022
