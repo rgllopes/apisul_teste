@@ -17,11 +17,15 @@ public interface IElevadorService {
 	/**
 	 * Deve retornar uma List contendo o período de maior fluxo de cada um dos
 	 * elevadores mais frequentados (se houver mais de um).
+	 * @throws ParseException
+	 * @throws IOException
 	 */
-	List<Character> periodoMaiorFluxoElevadorMaisFrequentado();
+	List<Character> periodoMaiorFluxoElevadorMaisFrequentado() throws IOException, ParseException;
 
-	/** Deve retornar uma List contendo o(s) elevador(es) menos frequentado(s). */
-	List<Character> elevadorMenosFrequentado();
+	/** Deve retornar uma List contendo o(s) elevador(es) menos frequentado(s). 
+	 * @throws ParseException
+	 * @throws IOException*/
+	List<Character> elevadorMenosFrequentado() throws IOException, ParseException;
 
 	/**
 	 * Deve retornar uma List contendo o período de menor fluxo de cada um dos
@@ -38,31 +42,46 @@ public interface IElevadorService {
 	/**
 	 * Deve retornar um float (duas casas decimais) contendo o percentual de uso do
 	 * elevador A em relação a todos os serviços prestados.
+	 * @throws ParseException
+	 * @throws IOException
+	 * @throws Exception
 	 */
-	float percentualDeUsoElevadorA();
+	float percentualDeUsoElevadorA() throws IOException, ParseException, Exception;
 
 	/**
 	 * Deve retornar um float (duas casas decimais) contendo o percentual de uso do
 	 * elevador B em relação a todos os serviços prestados.
+	 * @throws ParseException
+	 * @throws IOException
+	 * @throws Exception
 	 */
-	float percentualDeUsoElevadorB();
+	float percentualDeUsoElevadorB() throws IOException, ParseException, Exception;
 
 	/**
 	 * Deve retornar um float (duas casas decimais) contendo o percentual de uso do
 	 * elevador C em relação a todos os serviços prestados.
+	 * @throws ParseException
+	 * @throws IOException
+	 * @throws Exception
 	 */
-	float percentualDeUsoElevadorC();
+	float percentualDeUsoElevadorC() throws IOException, ParseException, Exception;
 
 	/**
 	 * Deve retornar um float (duas casas decimais) contendo o percentual de uso do
 	 * elevador D em relação a todos os serviços prestados.
+	 * @throws ParseException
+	 * @throws IOException
+	 * @throws Exception
 	 */
-	float percentualDeUsoElevadorD();
+	float percentualDeUsoElevadorD() throws IOException, ParseException, Exception;
 
 	/**
 	 * Deve retornar um float (duas casas decimais) contendo o percentual de uso do
 	 * elevador E em relação a todos os serviços prestados.
+	 * @throws ParseException
+	 * @throws IOException
+	 * @throws Exception
 	 */
-	float percentualDeUsoElevadorE();
+	float percentualDeUsoElevadorE() throws IOException, ParseException, Exception;
 
 }

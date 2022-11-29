@@ -83,7 +83,7 @@ public class ElevadorController {
 		}
 	}
 	//############################################################################################
-	@GetMapping("/percentual-de-uso-elevador")
+	@GetMapping("/percentual-de-uso-elevador-a")
 	public ResponseEntity<Float> percentualDeUsoElevador() {
 		try {
 			Float result = iElevadorService.percentualDeUsoElevadorA();
