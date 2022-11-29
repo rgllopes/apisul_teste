@@ -28,7 +28,7 @@ public class ElevadorController {
 		}
 	}
 	//############################################################################################
-	@GetMapping("/elevador-mais-utilizado")
+	@GetMapping(value = "/elevador-mais-utilizado")
 	public ResponseEntity<List<Character>> elevadorMaisFrequentado() {
 		try {
 			List<Character> result = iElevadorService.elevadorMaisFrequentado();

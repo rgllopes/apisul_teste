@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +13,7 @@ import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.json.simple.parser.ParseException;
+
 import org.springframework.stereotype.Service;
 
 import com.apisul.apisulelevadorsapi.model.Elevador;
@@ -22,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 public class ElevadorServiceImp implements IElevadorService {
 
-        public List<Elevador> JsonRead() throws IOException, ParseException {
+        public List<Elevador> JsonRead() throws Exception {
                 try {
                         String jsonString = String.join(" ",
                                         Files.readAllLines(Paths.get("./input.json"), StandardCharsets.UTF_8));
@@ -35,13 +37,12 @@ public class ElevadorServiceImp implements IElevadorService {
                         return result;
 
                 } catch (IOException e) {
-                        e.printStackTrace();
+                        throw new Exception("Não foi possível ler o arquivo input.json: " + e);
                 }
-                return null;
         }
         //############################################################################################
         @Override
-        public List<Integer> andarMenosUtilizado() throws IOException, ParseException {
+        public List<Integer> andarMenosUtilizado() throws Exception {
                 //Carrega os dados do arquivo json
                 List<Elevador> jsonData = JsonRead();
 
@@ -73,7 +74,7 @@ public class ElevadorServiceImp implements IElevadorService {
         }
         //############################################################################################
         @Override
-        public List<Character> elevadorMaisFrequentado() throws IOException, ParseException {
+        public List<Character> elevadorMaisFrequentado() throws Exception {
                 //Carrega os dados do arquivo json
                 List<Elevador> jsonData = JsonRead();
 
@@ -88,9 +89,9 @@ public class ElevadorServiceImp implements IElevadorService {
 
                 //Organiza do maior para o menor
                 Map<Character, Long> sortedElevador = countedAndar.entrySet().stream()
-                                .sorted(Map.Entry.comparingByValue())
-                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1,
-                                                LinkedHashMap::new));
+                        .sorted(Map.Entry.comparingByValue())
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, 
+                        LinkedHashMap::new));
 
                 //Filtra o ultimo registro para procura outras chaves com o mesmo valor
                 Entry<Character, Long> quantity = sortedElevador.entrySet().stream().reduce((one, two) -> two).get();
@@ -105,31 +106,44 @@ public class ElevadorServiceImp implements IElevadorService {
         }
         //############################################################################################
         @Override
-        public List<Character> periodoMaiorFluxoElevadorMaisFrequentado() throws IOException, ParseException {
+        public List<Character> periodoMaiorFluxoElevadorMaisFrequentado() throws Exception {
                 // Carrega os dados do arquivo json
                 List<Elevador> jsonData = JsonRead();
 
-                //Recupera o elevador mais usado
+                //Recupera elevador menos frequentado
                 List<Character> elevadorMaisUsado = elevadorMaisFrequentado();
+
+                //Converte a lista recuperada em 1 elemento de character para consulta
+                Character quantity = elevadorMaisUsado.get(0);
+
+                //Vezes em que elevador foi utilizado
+                List<Character> list = jsonData.stream()
+                        .filter(p -> p.getElevador() == quantity)
+                        .map(c -> c.getTurno())
+                        .collect(Collectors.toList());
+
+                //Agrupa para contagem de registros por periodo
+                Map<Character, Long> countedPeriodo = list.stream()
+                                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+                //Organiza do menor para o maior
+                Map<Character, Long> sortedPeriodo = countedPeriodo.entrySet().stream()
+                                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1,
+                                                LinkedHashMap::new));
+
+                //Recupera primeiro elemento do map organizado em ordem crescente
+                Character periodo = sortedPeriodo.keySet().stream().findFirst().get();
+
+                //Converte elemento para formato de resposta
+                List<Character> result = new ArrayList<>();
+                result.add(periodo); 
                 
-                String string = elevadorMaisUsado.toString()
-                  .substring(1, 3 * elevadorMaisUsado.size() - 1)
-                  .replaceAll(", ", "");
-
-
-                //Separa lista somente com os periodos
-                List<Character> periodoList = jsonData.stream()
-                                .filter(s-> s.getElevador().equals(string))
-                                .map(c -> c.getTurno())
-                                .collect(Collectors.toList());
-                
-
-
-                return periodoList;
+                return result; 
         }
         //############################################################################################
         @Override
-        public List<Character> elevadorMenosFrequentado() throws IOException, ParseException {
+        public List<Character> elevadorMenosFrequentado() throws Exception {
                 // Carrega os dados do arquivo json
                 List<Elevador> jsonData = JsonRead();
 
@@ -148,7 +162,7 @@ public class ElevadorServiceImp implements IElevadorService {
                                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1,
                                                 LinkedHashMap::new));
 
-                // Filtra o primeiro registro para procura outras chaves com o mesmo valor
+                //Filtra o primeiro registro para procura outras chaves com o mesmo valor
                 Optional<Entry<Character, Long>> quantity = sortedElevador.entrySet().stream().findFirst();
 
                 // Procura se mais de um elevador possui o mesmo valor
@@ -161,15 +175,77 @@ public class ElevadorServiceImp implements IElevadorService {
         }
         //############################################################################################
         @Override
-        public List<Character> periodoMenorFluxoElevadorMenosFrequentado() {
-                // TODO Auto-generated method stub
-                return null;
+        public List<Character> periodoMenorFluxoElevadorMenosFrequentado() throws Exception {
+                // Carrega os dados do arquivo json
+                List<Elevador> jsonData = JsonRead();
+
+                //Recupera elevador menos frequentado
+                List<Character> elevadorMenosUsado = elevadorMenosFrequentado();
+
+                //Converte a lista recuperada em 1 elemento de character para consulta
+                Character quantity = elevadorMenosUsado.get(0);
+
+                //Vezes em que elevador foi utilizado
+                List<Character> list = jsonData.stream()
+                        .filter(p -> p.getElevador() == quantity)
+                        .map(c -> c.getTurno())
+                        .collect(Collectors.toList());
+
+                //Agrupa para contagem de registros por periodo
+                Map<Character, Long> countedPeriodo = list.stream()
+                                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+                //Organiza do menor para o maior
+                Map<Character, Long> sortedPeriodo = countedPeriodo.entrySet().stream()
+                                .sorted(Map.Entry.comparingByValue())
+                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1,
+                                                LinkedHashMap::new));
+
+                //Recupera primeiro elemento do map organizado em ordem crescente
+                Character periodo = sortedPeriodo.keySet().stream().findFirst().get();
+
+                //Converte elemento para formato de resposta
+                List<Character> result = new ArrayList<>();
+                result.add(periodo); 
+                
+                return result;
         }
         //############################################################################################
         @Override
-        public List<Character> periodoMaiorUtilizacaoConjuntoElevadores() {
-                // TODO Auto-generated method stub
-                return null;
+        public List<Character> periodoMaiorUtilizacaoConjuntoElevadores() throws Exception {
+                // Carrega os dados do arquivo json
+                List<Elevador> jsonData = JsonRead();
+
+                //Recupera elevador mais frequentado
+                List<Character> elevadorMaisUsado = elevadorMaisFrequentado();
+
+                //Converte a lista recuperada em 1 elemento de character para consulta
+                Character quantity = elevadorMaisUsado.get(0);
+
+                //Vezes em que elevador foi utilizado
+                List<Character> list = jsonData.stream()
+                        .filter(p -> p.getElevador() == quantity)
+                        .map(c -> c.getTurno())
+                        .collect(Collectors.toList());
+
+                //Agrupa para contagem de registros por periodo
+                Map<Character, Long> countedPeriodo = list.stream()
+                                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+                //Organiza do maior para o menor
+                Map<Character, Long> sortedPeriodo = countedPeriodo.entrySet().stream()
+                                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1,
+                                                LinkedHashMap::new));
+
+                //Recupera primeiro elemento do map organizado em ordem decrescente
+                Character periodo = sortedPeriodo.keySet().stream().findFirst().get();
+
+                //Converte elemento para formato de resposta
+                List<Character> result = new ArrayList<>();
+                result.add(periodo); 
+                
+                return result;
         }
         //############################################################################################
         @Override
@@ -226,7 +302,6 @@ public class ElevadorServiceImp implements IElevadorService {
                         return result;        
                 } catch (Exception e) {
                         throw new Exception("Não foi possível realizar o cálculo solicitado. Dados inconsistentes: " + e);
-                }
-                
+                }                
         }
 }
