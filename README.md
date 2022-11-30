@@ -23,9 +23,21 @@ Para a realização do exercício você deve implementar a interface IElevadorSe
 
 Faça a leitura do arquivo input.json para ter acesso às entradas.
 
-### API desenvolvida em 
-** java 11 **
+### API desenvolvida em java 11
 
 ** projeto encontra-se na branch develop conforme gitflow recommendations **
+
+### Endpoints disponíveis
+1) /andar-menos-utilizado
+2) /elevador-mais-utilizado
+3) /periodo-maior-fluxo-elevador-mais-frequentado
+4) /elevador-menos-frequentado
+5) /periodo-menor-fluxo-elevador-menos-frequentado
+6) /periodo-maior-utilizacao-conjunto-elevadores
+7) /percentual-de-uso-elevador-a
+8) /percentual-de-uso-elevador-b
+9) /percentual-de-uso-elevador-c
+10) /percentual-de-uso-elevador-d
+11) /percentual-de-uso-elevador-e
  
 Data de entrega 29 de novembro de 2022
